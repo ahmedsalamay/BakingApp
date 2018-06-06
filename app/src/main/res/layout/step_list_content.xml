@@ -14,14 +14,38 @@
         android:layout_marginRight="16dp"
         app:cardCornerRadius="4dp">
 
-        <TextView
-            android:id="@+id/step_description_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/text_margin"
-            android:gravity="center"
-            android:textAppearance="?attr/textAppearanceListItem"
-            tools:text="TextView" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/step_description_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/text_margin"
+                android:gravity="center"
+                android:maxWidth="200dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="press the curest into baling formpress the curest into baling formpress the curest into baling form" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/video_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/if_video_48" />
+        </LinearLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

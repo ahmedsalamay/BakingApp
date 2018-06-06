@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -46,6 +48,8 @@ public class StepDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
+    private final String EXO_POSITION_KEY = "exo_current_position";
+    private final String EXO_PLAY_WHEN_READY_KEY = "play_when_ready";
 
     /**
      * The dummy content this fragment is presenting.
@@ -64,6 +68,8 @@ public class StepDetailFragment extends Fragment {
     private Button prevBtn;
     private ArrayList<Step> mSteps;
     private Picasso mPicasso;
+    private long mExoCurrentPosition;
+    private boolean mExoPlayWhenReadyState;
 
     public StepDetailFragment() {
     }
@@ -86,6 +92,10 @@ public class StepDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
+        if (savedInstanceState != null) {
+            mExoCurrentPosition = savedInstanceState.getLong(EXO_POSITION_KEY);
+            mExoPlayWhenReadyState = savedInstanceState.getBoolean(EXO_PLAY_WHEN_READY_KEY);
+        }
         mPicasso = ((BakingApplication) getActivity().getApplication()).getmPicasso();
         mPlayerView = rootView.findViewById(R.id.player_view);
         mEmptyState = rootView.findViewById(R.id.empty_state_video);
@@ -145,7 +155,6 @@ public class StepDetailFragment extends Fragment {
             prevBtn.setVisibility(View.GONE);
             stepDescription.setVisibility(View.GONE);
         }
-
         return rootView;
     }
 
@@ -189,7 +198,8 @@ public class StepDetailFragment extends Fragment {
                         , new DefaultDataSourceFactory(getActivity(), userAgent),
                         new DefaultExtractorsFactory(), null, null);
         mExoPlayer.prepare(mediaSource);
-        mExoPlayer.setPlayWhenReady(true);
+        mExoPlayer.seekTo(mExoCurrentPosition);
+        mExoPlayer.setPlayWhenReady(mExoPlayWhenReadyState);
         //Stick with the course content even it is deprecated!  hmmm
         // Measures bandwidth during playback. Can be null if not required.
        /* BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -225,15 +235,54 @@ public class StepDetailFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(EXO_POSITION_KEY, mExoCurrentPosition);
+        outState.putBoolean(EXO_PLAY_WHEN_READY_KEY, mExoPlayWhenReadyState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            mExoCurrentPosition = savedInstanceState.getLong(EXO_POSITION_KEY);
+            mExoPlayWhenReadyState = savedInstanceState.getBoolean(EXO_PLAY_WHEN_READY_KEY);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT <= 23) {
+            handleVideoCases();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        handleVideoCases();
+        if (Util.SDK_INT > 23 || mExoPlayer == null) {
+            handleVideoCases();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        releasePlayer();
+        mExoCurrentPosition = mExoPlayer.getCurrentPosition();
+        mExoPlayWhenReadyState = mExoPlayer.getPlayWhenReady();
+
+        if (Util.SDK_INT < 23 && mExoPlayer != null) {
+            releasePlayer();
+        }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23 && mExoPlayer != null) {
+            releasePlayer();
+        }
+
+    }
 }

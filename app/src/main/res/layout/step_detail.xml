@@ -13,7 +13,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:resize_mode="fixed_height" />
+        app:fastforward_increment="1000"
+        app:resize_mode="fixed_height"
+        app:rewind_increment="1000" />
 
     <ImageView
         android:id="@+id/step_image"

@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -232,6 +233,14 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
+
+            int visibility;
+            if (mValues.get(position).getVideoURL().isEmpty() || mValues.get(position).getVideoURL() == null) {
+                visibility = View.GONE;
+            } else {
+                visibility = View.VISIBLE;
+            }
+            holder.mVideoImage.setVisibility(visibility);
         }
 
         @Override
@@ -241,10 +250,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mContentView;
+            final ImageView mVideoImage;
 
             ViewHolder(View view) {
                 super(view);
                 mContentView = view.findViewById(R.id.step_description_txt);
+                mVideoImage = view.findViewById(R.id.video_image);
             }
         }
     }
